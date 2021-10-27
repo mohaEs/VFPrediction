@@ -12,7 +12,7 @@ And some other minor changes to make the code works properly with Python 3 and n
 Two Pr_Train* scripts are added along with two small fake data for training/testing.<br/>
 
 Notice:  <br/>
-In paper's implementation, It is supposed that, the background (non VF values) is -1
-make sure the background returned by finction FnConvert_1D_VF_2_2D has -1 values
+In paper's implementation, It is supposed that, the background (non VF values) is -1. <br/>
+make sure the background returned by the function FnConvert_1D_VF_2_2D has -1 values. 
 
 
