@@ -70,7 +70,8 @@ except:
 Data_PairedInfo=pandas.read_csv(InputCSV_PairsData, low_memory=False)
 Data_VF=pandas.read_csv(InputCSV_VFData, low_memory=False)
 
-
+Data_VF_values = Data_VF.values
+Data_VF_values_sensitivities = Data_VF_values[:,36:36+54]
 
 ''' ######################################## '''
 ''' ######################################## '''
@@ -136,8 +137,8 @@ for train_idx, test_idx in kf10.split(IDs):
             index_input_4_Data_VF=pair_id_interest.Index_input.iloc[ii]
             index_output_4_Data_VF=pair_id_interest.Index_output.iloc[ii]
             
-            VF_input=Data_VF.values[index_input_4_Data_VF.astype(int),36:36+54]
-            VF_output=Data_VF.values[index_output_4_Data_VF.astype(int),36:36+54]
+            VF_input=Data_VF_values_sensitivities[index_input_4_Data_VF.astype(int)]
+            VF_output=Data_VF_values_sensitivities[index_output_4_Data_VF.astype(int)]
             
             VF_input_2Darray=FnConvert_1D_VF_2_2D(VF_input)
             VF_output_2Darray=FnConvert_1D_VF_2_2D(VF_output)            
