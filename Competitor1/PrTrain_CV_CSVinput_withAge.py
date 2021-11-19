@@ -255,4 +255,4 @@ for train_idx, test_idx in kf10.split(IDs):
     np.savetxt(NamePred, VF_pred_1D, delimiter=',', fmt='%1.3f') 
     np.savetxt(NameInput, VF_input_1D, delimiter=',', fmt='%1.3f') 
         
-        
+os.remove('SavedInitialWeights_tensors.h5')              

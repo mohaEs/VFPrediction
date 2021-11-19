@@ -19,21 +19,6 @@ Functions:
 '''
 
 
-def FnConvert_1D_VF_2_2D(Vect54):
-    
-    VF_2D=np.zeros(shape=(8,9),dtype=int)
-    VF_2D=VF_2D-3
-    
-    VF_2D[0,3:7]=Vect54[0:4]
-    VF_2D[1,2:8]=Vect54[4:10]
-    VF_2D[2,1:9]=Vect54[10:18]
-    VF_2D[3,0:9]=Vect54[18:27]
-    VF_2D[4,0:9]=Vect54[27:36]
-    VF_2D[5,1:9]=Vect54[36:44]
-    VF_2D[6,2:8]=Vect54[44:50]
-    VF_2D[7,3:7]=Vect54[50:54]
-    
-    return VF_2D
 
 
 ''' ######################################## '''
@@ -71,10 +56,10 @@ Filter the data to have at least 6 timesteps
 
 IDs_0=Data_PairedInfo['ID'].unique()
 
-NumRecords=Data_PairedInfo.groupby(['ID']).count()
-IDs=NumRecords[NumRecords.Interval>4].index
-Data_PairedInfo_filtered=Data_PairedInfo[Data_PairedInfo['ID'].isin(IDs)]
-IDs=Data_PairedInfo_filtered['ID'].unique()
+NumRecords = Data_PairedInfo.groupby(['ID']).count()
+IDs = NumRecords[NumRecords.Interval>4].index
+Data_PairedInfo_filtered = Data_PairedInfo[Data_PairedInfo['ID'].isin(IDs)]
+IDs = Data_PairedInfo_filtered['ID'].unique()
 
 
 ''' ######################################## '''
@@ -93,6 +78,14 @@ ind_pd_end=Data_VF.columns.get_loc("pd54")
 ind_falsenegrate=Data_VF.columns.get_loc("falsenegrate")
 ind_falseposrate=Data_VF.columns.get_loc("falseposrate")
 ind_malfixrate=Data_VF.columns.get_loc("malfixrate")
+
+
+Data_VF_values = Data_VF.values
+Data_VF_values_td = Data_VF_values[:, ind_td_start:ind_td_end+1]
+Data_VF_values_pd = Data_VF_values[:, ind_pd_start:ind_pd_end+1]
+Data_VF_values_fnr = Data_VF_values[:, ind_falsenegrate]
+Data_VF_values_fpr = Data_VF_values[:, ind_falseposrate]
+Data_VF_values_fl = Data_VF_values[:, ind_malfixrate]
 
 
 
@@ -166,32 +159,32 @@ for train_idx, test_idx in kf10.split(IDs):
             time_3_days=round((pair_id_interest.Interval.iloc[ii+2]-time_last_years)*365)
             time_4_days=0
                                 
-            PDV_input_0=Data_VF.values[index_input_4_Data_VF_0.astype(int),ind_pd_start:ind_pd_end+1] / 50
-            TDV_input_0=Data_VF.values[index_input_4_Data_VF_0.astype(int),ind_td_start:ind_td_end+1] / 50
-            PDV_input_1=Data_VF.values[index_input_4_Data_VF_1.astype(int),ind_pd_start:ind_pd_end+1] / 50
-            TDV_input_1=Data_VF.values[index_input_4_Data_VF_1.astype(int),ind_td_start:ind_td_end+1] / 50
-            PDV_input_2=Data_VF.values[index_input_4_Data_VF_2.astype(int),ind_pd_start:ind_pd_end+1] / 50 
-            TDV_input_2=Data_VF.values[index_input_4_Data_VF_2.astype(int),ind_td_start:ind_td_end+1] / 50
-            PDV_input_3=Data_VF.values[index_input_4_Data_VF_3.astype(int),ind_pd_start:ind_pd_end+1] / 50 
-            TDV_input_3=Data_VF.values[index_input_4_Data_VF_3.astype(int),ind_td_start:ind_td_end+1] / 50
-            PDV_input_4=Data_VF.values[index_input_4_Data_VF_4.astype(int),ind_pd_start:ind_pd_end+1] / 50 
-            TDV_input_4=Data_VF.values[index_input_4_Data_VF_4.astype(int),ind_td_start:ind_td_end+1] / 50
+            PDV_input_0= Data_VF_values_pd[index_input_4_Data_VF_0.astype(int)] / 50
+            TDV_input_0= Data_VF_values_td[index_input_4_Data_VF_0.astype(int)] / 50
+            PDV_input_1= Data_VF_values_pd[index_input_4_Data_VF_1.astype(int)] / 50
+            TDV_input_1= Data_VF_values_td[index_input_4_Data_VF_1.astype(int)] / 50
+            PDV_input_2= Data_VF_values_pd[index_input_4_Data_VF_2.astype(int)] / 50 
+            TDV_input_2= Data_VF_values_td[index_input_4_Data_VF_2.astype(int)] / 50
+            PDV_input_3= Data_VF_values_pd[index_input_4_Data_VF_3.astype(int)] / 50 
+            TDV_input_3= Data_VF_values_td[index_input_4_Data_VF_3.astype(int)] / 50
+            PDV_input_4= Data_VF_values_pd[index_input_4_Data_VF_4.astype(int)] / 50 
+            TDV_input_4= Data_VF_values_td[index_input_4_Data_VF_4.astype(int)] / 50
             
-            FP_input_0=Data_VF.values[index_input_4_Data_VF_0.astype(int),ind_falseposrate]
-            FN_input_0=Data_VF.values[index_input_4_Data_VF_0.astype(int),ind_falsenegrate]
-            FL_input_0=Data_VF.values[index_input_4_Data_VF_0.astype(int),ind_malfixrate] 
-            FP_input_1=Data_VF.values[index_input_4_Data_VF_1.astype(int),ind_falseposrate]
-            FN_input_1=Data_VF.values[index_input_4_Data_VF_1.astype(int),ind_falsenegrate]
-            FL_input_1=Data_VF.values[index_input_4_Data_VF_1.astype(int),ind_malfixrate] 
-            FP_input_2=Data_VF.values[index_input_4_Data_VF_2.astype(int),ind_falseposrate]
-            FN_input_2=Data_VF.values[index_input_4_Data_VF_2.astype(int),ind_falsenegrate]
-            FL_input_2=Data_VF.values[index_input_4_Data_VF_2.astype(int),ind_malfixrate] 
-            FP_input_3=Data_VF.values[index_input_4_Data_VF_3.astype(int),ind_falseposrate]
-            FN_input_3=Data_VF.values[index_input_4_Data_VF_3.astype(int),ind_falsenegrate]
-            FL_input_3=Data_VF.values[index_input_4_Data_VF_3.astype(int),ind_malfixrate] 
-            FP_input_4=Data_VF.values[index_input_4_Data_VF_4.astype(int),ind_falseposrate]
-            FN_input_4=Data_VF.values[index_input_4_Data_VF_4.astype(int),ind_falsenegrate]
-            FL_input_4=Data_VF.values[index_input_4_Data_VF_4.astype(int),ind_malfixrate]          
+            FP_input_0= Data_VF_values_fpr[index_input_4_Data_VF_0.astype(int)]
+            FN_input_0= Data_VF_values_fnr[index_input_4_Data_VF_0.astype(int)]
+            FL_input_0= Data_VF_values_fl[index_input_4_Data_VF_0.astype(int)] 
+            FP_input_1= Data_VF_values_fpr[index_input_4_Data_VF_1.astype(int)]
+            FN_input_1= Data_VF_values_fnr[index_input_4_Data_VF_1.astype(int)]
+            FL_input_1= Data_VF_values_fl[index_input_4_Data_VF_1.astype(int)] 
+            FP_input_2= Data_VF_values_fpr[index_input_4_Data_VF_2.astype(int)]
+            FN_input_2= Data_VF_values_fnr[index_input_4_Data_VF_2.astype(int)]
+            FL_input_2= Data_VF_values_fl[index_input_4_Data_VF_2.astype(int)] 
+            FP_input_3= Data_VF_values_fpr[index_input_4_Data_VF_3.astype(int)]
+            FN_input_3= Data_VF_values_fnr[index_input_4_Data_VF_3.astype(int)]
+            FL_input_3= Data_VF_values_fl[index_input_4_Data_VF_3.astype(int)] 
+            FP_input_4= Data_VF_values_fpr[index_input_4_Data_VF_4.astype(int)]
+            FN_input_4= Data_VF_values_fnr[index_input_4_Data_VF_4.astype(int)]
+            FL_input_4= Data_VF_values_fl[index_input_4_Data_VF_4.astype(int)]          
             
             Tmp=np.array([time_0_days, FP_input_0,FN_input_0,FL_input_0])
             Feature_0=np.concatenate((Tmp,PDV_input_0,TDV_input_0), axis=0)
@@ -214,7 +207,7 @@ for train_idx, test_idx in kf10.split(IDs):
             X_VFs_tensor_train[counter_,4,:]=Feature_4
             X_VFs_tensor_train[counter_,5,:]=Feature_5
             
-            Y_VFs_tensor_train[counter_,:]=Data_VF.values[index_output_4_Data_VF.astype(int),ind_td_start:ind_td_end+1] /50   
+            Y_VFs_tensor_train[counter_,:]= Data_VF_values_td[index_output_4_Data_VF.astype(int)] /50   
             
     X_VFs_tensor_train_del=np.delete(X_VFs_tensor_train, range(counter_+1,len(Data_PairedInfo_filtered)), 0)
     X_VFs_tensor_train_del[:,:,0]=X_VFs_tensor_train_del[:,:,0]/10000
@@ -255,32 +248,32 @@ for train_idx, test_idx in kf10.split(IDs):
             time_3_days=round((pair_id_interest.Interval.iloc[ii+2]-time_last_years)*365)
             time_4_days=0
                                 
-            PDV_input_0=Data_VF.values[index_input_4_Data_VF_0.astype(int),ind_pd_start:ind_pd_end+1] / 50
-            TDV_input_0=Data_VF.values[index_input_4_Data_VF_0.astype(int),ind_td_start:ind_td_end+1] / 50
-            PDV_input_1=Data_VF.values[index_input_4_Data_VF_1.astype(int),ind_pd_start:ind_pd_end+1] / 50
-            TDV_input_1=Data_VF.values[index_input_4_Data_VF_1.astype(int),ind_td_start:ind_td_end+1] / 50
-            PDV_input_2=Data_VF.values[index_input_4_Data_VF_2.astype(int),ind_pd_start:ind_pd_end+1] / 50
-            TDV_input_2=Data_VF.values[index_input_4_Data_VF_2.astype(int),ind_td_start:ind_td_end+1] / 50
-            PDV_input_3=Data_VF.values[index_input_4_Data_VF_3.astype(int),ind_pd_start:ind_pd_end+1] / 50
-            TDV_input_3=Data_VF.values[index_input_4_Data_VF_3.astype(int),ind_td_start:ind_td_end+1] / 50
-            PDV_input_4=Data_VF.values[index_input_4_Data_VF_4.astype(int),ind_pd_start:ind_pd_end+1] / 50
-            TDV_input_4=Data_VF.values[index_input_4_Data_VF_4.astype(int),ind_td_start:ind_td_end+1] / 50
+            PDV_input_0= Data_VF_values_pd[index_input_4_Data_VF_0.astype(int)] / 50
+            TDV_input_0= Data_VF_values_td[index_input_4_Data_VF_0.astype(int)] / 50
+            PDV_input_1= Data_VF_values_pd[index_input_4_Data_VF_1.astype(int)] / 50
+            TDV_input_1= Data_VF_values_td[index_input_4_Data_VF_1.astype(int)] / 50
+            PDV_input_2= Data_VF_values_pd[index_input_4_Data_VF_2.astype(int)] / 50 
+            TDV_input_2= Data_VF_values_td[index_input_4_Data_VF_2.astype(int)] / 50
+            PDV_input_3= Data_VF_values_pd[index_input_4_Data_VF_3.astype(int)] / 50 
+            TDV_input_3= Data_VF_values_td[index_input_4_Data_VF_3.astype(int)] / 50
+            PDV_input_4= Data_VF_values_pd[index_input_4_Data_VF_4.astype(int)] / 50 
+            TDV_input_4= Data_VF_values_td[index_input_4_Data_VF_4.astype(int)] / 50
             
-            FP_input_0=Data_VF.values[index_input_4_Data_VF_0.astype(int),ind_falseposrate]
-            FN_input_0=Data_VF.values[index_input_4_Data_VF_0.astype(int),ind_falsenegrate]
-            FL_input_0=Data_VF.values[index_input_4_Data_VF_0.astype(int),ind_malfixrate] 
-            FP_input_1=Data_VF.values[index_input_4_Data_VF_1.astype(int),ind_falseposrate]
-            FN_input_1=Data_VF.values[index_input_4_Data_VF_1.astype(int),ind_falsenegrate]
-            FL_input_1=Data_VF.values[index_input_4_Data_VF_1.astype(int),ind_malfixrate] 
-            FP_input_2=Data_VF.values[index_input_4_Data_VF_2.astype(int),ind_falseposrate]
-            FN_input_2=Data_VF.values[index_input_4_Data_VF_2.astype(int),ind_falsenegrate]
-            FL_input_2=Data_VF.values[index_input_4_Data_VF_2.astype(int),ind_malfixrate] 
-            FP_input_3=Data_VF.values[index_input_4_Data_VF_3.astype(int),ind_falseposrate]
-            FN_input_3=Data_VF.values[index_input_4_Data_VF_3.astype(int),ind_falsenegrate]
-            FL_input_3=Data_VF.values[index_input_4_Data_VF_3.astype(int),ind_malfixrate] 
-            FP_input_4=Data_VF.values[index_input_4_Data_VF_4.astype(int),ind_falseposrate]
-            FN_input_4=Data_VF.values[index_input_4_Data_VF_4.astype(int),ind_falsenegrate]
-            FL_input_4=Data_VF.values[index_input_4_Data_VF_4.astype(int),ind_malfixrate] 
+            FP_input_0= Data_VF_values_fpr[index_input_4_Data_VF_0.astype(int)]
+            FN_input_0= Data_VF_values_fnr[index_input_4_Data_VF_0.astype(int)]
+            FL_input_0= Data_VF_values_fl[index_input_4_Data_VF_0.astype(int)] 
+            FP_input_1= Data_VF_values_fpr[index_input_4_Data_VF_1.astype(int)]
+            FN_input_1= Data_VF_values_fnr[index_input_4_Data_VF_1.astype(int)]
+            FL_input_1= Data_VF_values_fl[index_input_4_Data_VF_1.astype(int)] 
+            FP_input_2= Data_VF_values_fpr[index_input_4_Data_VF_2.astype(int)]
+            FN_input_2= Data_VF_values_fnr[index_input_4_Data_VF_2.astype(int)]
+            FL_input_2= Data_VF_values_fl[index_input_4_Data_VF_2.astype(int)] 
+            FP_input_3= Data_VF_values_fpr[index_input_4_Data_VF_3.astype(int)]
+            FN_input_3= Data_VF_values_fnr[index_input_4_Data_VF_3.astype(int)]
+            FL_input_3= Data_VF_values_fl[index_input_4_Data_VF_3.astype(int)] 
+            FP_input_4= Data_VF_values_fpr[index_input_4_Data_VF_4.astype(int)]
+            FN_input_4= Data_VF_values_fnr[index_input_4_Data_VF_4.astype(int)]
+            FL_input_4= Data_VF_values_fl[index_input_4_Data_VF_4.astype(int)]  
             
             Tmp=np.array([time_0_days, FP_input_0,FN_input_0,FL_input_0])
             Feature_0=np.concatenate((Tmp,PDV_input_0,TDV_input_0), axis=0)
@@ -303,7 +296,7 @@ for train_idx, test_idx in kf10.split(IDs):
             X_VFs_tensor_test[counter_,4,:]=Feature_4
             X_VFs_tensor_test[counter_,5,:]=Feature_5
             
-            Y_VFs_tensor_test[counter_,:]=Data_VF.values[index_output_4_Data_VF.astype(int),ind_td_start:ind_td_end+1] /50     
+            Y_VFs_tensor_test[counter_,:]= Data_VF_values_td[index_output_4_Data_VF.astype(int)] /50     
 
             
     X_VFs_tensor_test_del=np.delete(X_VFs_tensor_test, range(counter_+1,len(Data_PairedInfo_filtered)), 0)
@@ -319,7 +312,8 @@ for train_idx, test_idx in kf10.split(IDs):
     '''  
     print('Training started ...')  
     start_time = time.time()     
-    History = SelectedModel.fit(X_VFs_tensor_train_del, Y_VFs_tensor_train_del, validation_split=0.1, epochs=300, batch_size=2, verbose=0)#250-250
+    History = SelectedModel.fit(X_VFs_tensor_train_del, Y_VFs_tensor_train_del, 
+                                validation_split=0.1, epochs=300, batch_size=2, verbose=0)#250-250
     elapsed_time = time.time() - start_time
     print('----- train elapsed time:', elapsed_time)
     
@@ -357,5 +351,5 @@ for train_idx, test_idx in kf10.split(IDs):
     np.savetxt(NameTruth, Y_VFs_tensor_test_del, delimiter=',', fmt='%1.3f')   
     np.savetxt(NamePred, Y_pred_VFs_tensor_test_del, delimiter=',', fmt='%1.3f') 
     
-        
+os.remove('SavedInitialWeights_tensors.h5')        
         
