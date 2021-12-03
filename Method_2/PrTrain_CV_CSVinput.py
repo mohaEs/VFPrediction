@@ -98,11 +98,10 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import KFold
 
 import models
+import tensorflow as tf
+
 SelectedModel = models.ModelOfPaper()
 SelectedModel.summary()
-import tensorflow as tf
-OPTIMIZER_2=tf.keras.optimizers.Adam(lr=0.001, beta_1=0.99, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
-SelectedModel.compile(loss=tf.keras.losses.mean_absolute_error, optimizer=OPTIMIZER_2)
 SelectedModel.save_weights('SavedInitialWeights_tensors.h5')
 
 
