@@ -103,7 +103,8 @@ import tensorflow as tf
 SelectedModel = models.ModelOfPaper()
 SelectedModel.summary()
 SelectedModel.save_weights('SavedInitialWeights_tensors.h5')
-
+callback_stopEarly = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=250, restore_best_weights=True)
+callbacK_nan = tf.keras.callbacks.TerminateOnNaN()
 
 ''' ######################################## '''
 ''' ######################################## '''
@@ -349,8 +350,7 @@ for train_idx, test_idx in kf10.split(IDs):
     ''' Training ###########
     '''  
 
-    callback_stopEarly = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=250, restore_best_weights=True)
-    callbacK_nan = tf.keras.callbacks.TerminateOnNaN()
+
 
     print('Training started ...')  
     start_time = time.time()     
