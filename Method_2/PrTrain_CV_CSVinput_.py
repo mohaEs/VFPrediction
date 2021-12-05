@@ -103,7 +103,7 @@ import tensorflow as tf
 SelectedModel = models.ModelOfPaper()
 SelectedModel.summary()
 SelectedModel.save_weights('SavedInitialWeights_tensors.h5')
-callback_stopEarly = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=250, restore_best_weights=True)
+callback_stopEarly = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=50, restore_best_weights=True)
 callbacK_nan = tf.keras.callbacks.TerminateOnNaN()
 
 ''' ######################################## '''
