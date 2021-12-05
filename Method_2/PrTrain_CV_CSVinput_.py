@@ -110,7 +110,8 @@ SelectedModel.save_weights('SavedInitialWeights_tensors.h5')
 ''' ######################################## '''
 
 
-
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
 
 import time
 
@@ -210,7 +211,7 @@ for train_idx, test_idx in kf10.split(IDs):
             
     X_VFs_tensor_train_del=np.delete(X_VFs_tensor_train, range(counter_+1,len(Data_PairedInfo_filtered)), 0)
     X_VFs_tensor_train_del[:,:,0]=X_VFs_tensor_train_del[:,:,0]/10000
-    Y_VFs_tensor_train_del=np.delete(Y_VFs_tensor_train, range(counter_+1,len(Data_PairedInfo_filtered)), 0)     
+    Y_VFs_tensor_train_del= np.delete(Y_VFs_tensor_train, range(counter_+1,len(Data_PairedInfo_filtered)), 0)     
     print('Number of samples - Training: ', Y_VFs_tensor_train_del.shape[0])
 
 #        plt.imshow(X_VFs_tensor_train_del[29,:,:,0])
@@ -298,21 +299,65 @@ for train_idx, test_idx in kf10.split(IDs):
             Y_VFs_tensor_test[counter_,:]= Data_VF_values_td[index_output_4_Data_VF.astype(int)] /50     
 
             
-    X_VFs_tensor_test_del=np.delete(X_VFs_tensor_test, range(counter_+1,len(Data_PairedInfo_filtered)), 0)
+    X_VFs_tensor_test_del= np.delete(X_VFs_tensor_test, range(counter_+1,len(Data_PairedInfo_filtered)), 0)
     X_VFs_tensor_test_del[:,:,0]=X_VFs_tensor_test_del[:,:,0]/10000
-    Y_VFs_tensor_test_del=np.delete(Y_VFs_tensor_test, range(counter_+1,len(Data_PairedInfo_filtered)), 0)        
+    Y_VFs_tensor_test_del= np.delete(Y_VFs_tensor_test, range(counter_+1,len(Data_PairedInfo_filtered)), 0)        
     
     
+
+    ''' Scaling and randomization ###########
+    '''  
+
+    X_test_0 = X_VFs_tensor_test_del
+    X_train_0 = X_VFs_tensor_train_del
+    Y_test = Y_VFs_tensor_test_del
+    Y_train_0 = Y_VFs_tensor_train_del
+
+    data4scale_train = np.reshape(X_train_0, (X_train_0.shape[0]*X_train_0.shape[1], X_train_0.shape[2]))
+    scaler.fit(data4scale_train)
+        
+    X_train_scaled = np.copy(X_train_0)
+    X_test_scaled = np.copy(X_test_0)
+    for sample in range(0, X_train_0.shape[0]):
+        #for time in range(0, X_train.shape[1]):
+        x= X_train_0[sample, :, : ]
+        X_train_scaled[sample, :, : ] = scaler.transform(x)
+    
+    for sample in range(0, X_test_0.shape[0]):
+        #for time in range(0, X_train.shape[1]):
+        x= X_test_0[sample, :, : ]
+        X_test_scaled[sample, :, : ] = scaler.transform(x)
+    
+       
+    RandomIndices = np.random.permutation(X_train_0.shape[0])
+    Indices4Val =  RandomIndices[0:round(0.1*X_train_0.shape[0])]
+    Indices4Train = RandomIndices[round(0.1*X_train_0.shape[0]):-1]
+    
+    X_train = X_train_scaled[Indices4Train,:,:]
+    Y_train = Y_train_0[Indices4Train,:]
+    
+    X_val = X_train_scaled[Indices4Val,:,:]    
+    Y_val = Y_train_0[Indices4Val,:]
+    
+    X_test = X_test_scaled
+
+
 #    plt.imshow(Y_VFs_tensor_test_del[0,:,:,0])
 #    plt.colorbar()        
     
 
     ''' Training ###########
     '''  
+
+    callback_stopEarly = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=250, restore_best_weights=True)
+    callbacK_nan = tf.keras.callbacks.TerminateOnNaN()
+
     print('Training started ...')  
     start_time = time.time()     
-    History = SelectedModel.fit(X_VFs_tensor_train_del, Y_VFs_tensor_train_del, 
-                                validation_split=0.1, epochs=300, batch_size=2, verbose=0)#250-250
+    History = SelectedModel.fit(X_train, Y_train, 
+                                validation_data=(X_val, Y_val), epochs=1000, 
+                                batch_size=2, verbose=0, shuffle=True,
+                                callbacks=[callback_stopEarly, callbacK_nan ])#250-250
     elapsed_time = time.time() - start_time
     print('----- train elapsed time:', elapsed_time)
     
@@ -331,24 +376,24 @@ for train_idx, test_idx in kf10.split(IDs):
     '''  
     
     
-    print('Number of samples - Testing: ', Y_VFs_tensor_test_del.shape[0])
+    print('Number of samples - Testing: ', Y_test.shape[0])
     print('Testing started ...')
-    Y_pred_VFs_tensor_test_del=SelectedModel.predict(X_VFs_tensor_test_del)
+    Y_pred_VFs=SelectedModel.predict(X_test)
     #Y_pred_VFs_tensor_train_del=SelectedModel.predict(X_VFs_tensor_train_del)
     
 #    plt.imshow(Y_pred_VFs_tensor_test_del[0,:,:,0])
 #    plt.colorbar() 
     
     
-    Y_VFs_tensor_test_del=50*Y_VFs_tensor_test_del
-    Y_pred_VFs_tensor_test_del=50*Y_pred_VFs_tensor_test_del
+    Y_test= 50*Y_test
+    Y_pred_VFs= 50*Y_pred_VFs
     
            
     NameTruth=OutputFolder+'TDV_Fold_' +str(fold_counter) +'_truth.csv' 
     NamePred=OutputFolder+'TDV_Fold_' + str(fold_counter) +'_pred.csv'
             
-    np.savetxt(NameTruth, Y_VFs_tensor_test_del, delimiter=',', fmt='%1.3f')   
-    np.savetxt(NamePred, Y_pred_VFs_tensor_test_del, delimiter=',', fmt='%1.3f') 
+    np.savetxt(NameTruth, Y_test, delimiter=',', fmt='%1.3f')   
+    np.savetxt(NamePred, Y_pred_VFs, delimiter=',', fmt='%1.3f') 
     
 os.remove('SavedInitialWeights_tensors.h5')        
         
