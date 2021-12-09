@@ -70,8 +70,12 @@ except:
 Data_PairedInfo=pandas.read_csv(InputCSV_PairsData, low_memory=False)
 Data_VF=pandas.read_csv(InputCSV_VFData, low_memory=False)
 
+columns = Data_VF.columns
+s1_index = columns.get_loc("s1")
+s54_index = columns.get_loc("s54")
+
 Data_VF_values = Data_VF.values
-Data_VF_values_sensitivities = Data_VF_values[:,36:36+54]
+Data_VF_values_sensitivities = Data_VF_values[:, s1_index:s54_index+1]
 
 ''' ######################################## '''
 ''' ######################################## '''
